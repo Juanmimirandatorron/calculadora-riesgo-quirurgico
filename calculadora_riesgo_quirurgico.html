@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Riesgo Quirúrgico</title>
+  <style>
+    body { font-family: Calibri, sans-serif; margin: 20px; background: #f8f9fa; }
+    h2 { color: #004080; }
+    .section { background: white; padding: 20px; margin-bottom: 30px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input { width: 100%; padding: 6px; margin-top: 4px; border-radius: 6px; border: 1px solid #ccc; }
+    .tooltip { font-size: 0.9em; color: #555; margin-bottom: 10px; }
+    button { margin-top: 20px; padding: 10px 20px; background-color: #004080; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    button:hover { background-color: #003060; }
+    .result-table { margin-top: 20px; width: 100%; border-collapse: collapse; }
+    .result-table td, .result-table th { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    .green { background-color: #d4edda; }
+    .yellow { background-color: #fff3cd; }
+    .red { background-color: #f8d7da; }
+  </style>
+</head>
+<body>
+  <h1>Calculadora de Riesgo Quirúrgico</h1>
+
+  <div class="section">
+    <h2>Cirugía con CEC</h2>
+    <label for="edad_cec">Edad</label>
+    <input type="number" id="edad_cec" placeholder="Introduce la edad en años">
+    <div class="tooltip">Edad en años al momento de la cirugía.</div>
+
+    <label for="imc_cec">IMC (Kg/m²)</label>
+    <input type="number" id="imc_cec" step="0.1" placeholder="Introduce el IMC">
+    <div class="tooltip">Índice de masa corporal calculado como peso/altura².</div>
+
+    <label for="fevi_cec">FEVI (%)</label>
+    <input type="number" id="fevi_cec" placeholder="Introduce el valor de la fracción de eyección">
+    <div class="tooltip">Fracción de eyección del ventrículo izquierdo estimada por eco o RMN.</div>
+
+    <button onclick="calcularCEC()">Calcular Riesgo</button>
+    <table class="result-table" id="result_cec">
+      <thead><tr><th>Resultado</th><th>Valor estimado (%)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Cirugía Coronaria Aislada</h2>
+    <label for="edad_cor">Edad</label>
+    <input type="number" id="edad_cor" placeholder="Introduce la edad en años">
+    <div class="tooltip">Edad en años al momento de la intervención coronaria.</div>
+
+    <label for="imc_cor">IMC (Kg/m²)</label>
+    <input type="number" id="imc_cor" step="0.1" placeholder="Introduce el IMC">
+    <div class="tooltip">Índice de masa corporal preoperatorio.</div>
+
+    <label for="fevi_cor">FEVI (%)</label>
+    <input type="number" id="fevi_cor" placeholder="Introduce el valor de la fracción de eyección">
+    <div class="tooltip">Fracción de eyección del ventrículo izquierdo en porcentaje.</div>
+
+    <button onclick="calcularCoronaria()">Calcular Riesgo</button>
+    <table class="result-table" id="result_cor">
+      <thead><tr><th>Resultado</th><th>Valor estimado (%)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    function colorear(valor) {
+      if (valor < 5) return 'green';
+      else if (valor <= 10) return 'yellow';
+      else return 'red';
+    }
+
+    function calcularCEC() {
+      const edad = parseFloat(document.getElementById("edad_cec").value);
+      const imc = parseFloat(document.getElementById("imc_cec").value);
+      const fevi = parseFloat(document.getElementById("fevi_cec").value);
+
+      if (isNaN(edad) || isNaN(imc) || isNaN(fevi)) return;
+
+      const coef_edad = 1.378182;
+      const coef_imc = 2.350474;
+      const coef_fevi = -0.5;
+
+      const riesgo_muerte = (coef_edad + coef_imc + coef_fevi).toFixed(2);
+      const riesgo_estancia = (4.406324 + 5.816112).toFixed(2);
+
+      const tabla = document.getElementById("result_cec").querySelector("tbody");
+      tabla.innerHTML = `
+        <tr class="${colorear(riesgo_muerte)}"><td>Mortalidad estimada</td><td>${riesgo_muerte}</td></tr>
+        <tr class="${colorear(riesgo_estancia)}"><td>Estancia prolongada</td><td>${riesgo_estancia}</td></tr>
+      `;
+    }
+
+    function calcularCoronaria() {
+      const edad = parseFloat(document.getElementById("edad_cor").value);
+      const imc = parseFloat(document.getElementById("imc_cor").value);
+      const fevi = parseFloat(document.getElementById("fevi_cor").value);
+
+      if (isNaN(edad) || isNaN(imc) || isNaN(fevi)) return;
+
+      const coef_edad = 1.793355;
+      const coef_imc = -2.555711;
+      const coef_fevi = -0.5;
+
+      const riesgo_muerte = (coef_edad + coef_imc + coef_fevi).toFixed(2);
+      const riesgo_estancia = (1.91214 + 6.430149).toFixed(2);
+
+      const tabla = document.getElementById("result_cor").querySelector("tbody");
+      tabla.innerHTML = `
+        <tr class="${colorear(riesgo_muerte)}"><td>Mortalidad estimada</td><td>${riesgo_muerte}</td></tr>
+        <tr class="${colorear(riesgo_estancia)}"><td>Estancia prolongada</td><td>${riesgo_estancia}</td></tr>
+      `;
+    }
+  </script>
+</body>
+</html>
